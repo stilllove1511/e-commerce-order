@@ -25,4 +25,7 @@ export class Cart {
 
     @Column()
     quantity: number
+
+    @Column()
+    userId: string
 }

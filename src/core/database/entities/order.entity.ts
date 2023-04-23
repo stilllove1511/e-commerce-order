@@ -29,4 +29,7 @@ export class Order {
 
     @Column({ default: ORDER_STATUS_CODE.processing })
     statusCode: string
+
+    @Column()
+    userId: string
 }
