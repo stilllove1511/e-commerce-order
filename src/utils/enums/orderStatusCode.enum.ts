@@ -1,6 +1,6 @@
 export enum ORDER_STATUS_CODE {
     processing = 'P',
-    shipped = 'S',
-    delivered = 'D',
+    delivering = 'D1',
+    delivered = 'D2',
     cancelled = 'C',
 }
