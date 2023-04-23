@@ -1,3 +1,4 @@
+import { ORDER_STATUS_CODE } from '@src/utils/enums/orderStatusCode.enum'
 import {
     Entity,
     PrimaryGeneratedColumn,
@@ -25,4 +26,7 @@ export class Order {
 
     @Column()
     quantity: number
+
+    @Column({ default: ORDER_STATUS_CODE.processing })
+    statusCode: string
 }
