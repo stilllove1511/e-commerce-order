@@ -19,10 +19,12 @@ export class CartService {
         }
     }
 
-    async getAllCart({ take, skip }) {
+    async getAllCart({ take, skip, user }) {
+        const userId = user.id
         const result = await this.cartRepository.findAndCount({
             take,
             skip,
+            where: { userId },
         })
         const total = result[1]
         const data = result[0]
@@ -32,8 +34,11 @@ export class CartService {
         }
     }
 
-    async getCart(id) {
-        const result = await this.cartRepository.findOneBy({ id })
+    async getCart({ id, user }) {
+        const userId = user.id
+        const result = await this.cartRepository.findOne({
+            where: { userId, id },
+        })
         if (result) {
             return {
                 code: ERROR_CODE.SUCCESS,
@@ -48,10 +53,15 @@ export class CartService {
     }
 
     async updateCart(data) {
-        const band = await this.cartRepository.findOneBy({
-            id: data.id,
+        const cartId = data.id
+        const userId = data.user.id
+        const cart = await this.cartRepository.findOne({
+            where: {
+                userId,
+                id: cartId,
+            },
         })
-        if (band) {
+        if (cart) {
             await this.cartRepository.save(data)
             return {
                 code: ERROR_CODE.SUCCESS,
@@ -59,12 +69,19 @@ export class CartService {
         } else {
             return {
                 code: ERROR_CODE.FAIL,
-                message: 'cart is not exist',
+                message: 'update fail',
             }
         }
     }
 
-    async deleteCart(id) {
+    async deleteCart({ id, user }) {
+        const userId = user.id
+        await this.cartRepository.findOneOrFail({
+            where: {
+                id,
+                userId,
+            },
+        })
         const result = await this.cartRepository.softDelete(id)
         return {
             code: ERROR_CODE.SUCCESS,

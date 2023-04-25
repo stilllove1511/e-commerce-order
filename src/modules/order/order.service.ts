@@ -17,12 +17,14 @@ export class OrderService {
         let response
         await this.orderRepository.manager.transaction(
             async (transactionalEntityManager) => {
+                const userId = data.userId
                 const cartId = data.cartId
                 const cart = await transactionalEntityManager.findOneBy(Cart, {
                     id: cartId,
                 })
                 delete cart.id
                 let order = new Order()
+                order.userId = userId
                 order = { ...cart, ...order }
                 await transactionalEntityManager.softDelete(Cart, cartId)
                 const result = await transactionalEntityManager.save(
@@ -38,10 +40,12 @@ export class OrderService {
         return response
     }
 
-    async getAllOrder({ take, skip }) {
+    async getAllOrder({ take, skip, user }) {
+        const userId = user.id
         const result = await this.orderRepository.findAndCount({
             take,
             skip,
+            where: { userId },
         })
         const total = result[1]
         const data = result[0]
@@ -51,8 +55,11 @@ export class OrderService {
         }
     }
 
-    async getOrder(id) {
-        const result = await this.orderRepository.findOneBy({ id })
+    async getOrder({ id, user }) {
+        const userId = user.id
+        const result = await this.orderRepository.findOne({
+            where: { userId, id },
+        })
         if (result) {
             return {
                 code: ERROR_CODE.SUCCESS,
