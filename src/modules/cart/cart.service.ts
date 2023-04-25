@@ -12,6 +12,7 @@ export class CartService {
     ) {}
 
     async createCart(data) {
+        data.userId=data.user.id
         let result = await this.cartRepository.save(data)
         return {
             code: ERROR_CODE.SUCCESS,
@@ -55,6 +56,7 @@ export class CartService {
     async updateCart(data) {
         const cartId = data.id
         const userId = data.user.id
+        data.userId=userId
         const cart = await this.cartRepository.findOne({
             where: {
                 userId,
