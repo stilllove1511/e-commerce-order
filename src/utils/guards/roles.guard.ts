@@ -23,17 +23,18 @@ export class RolesGuard implements CanActivate {
 
         const request = context.switchToHttp().getRequest()
         const user = request.user // Được đặt trong quá trình xác thực trước đó, ví dụ: JWT xác thực
-
-        if (!user || !user.role) {
+        
+        if (!user || !user.roles.length) {
             // Nếu không có thông tin người dùng hoặc không có vai trò được xác định, không cho phép truy cập
             return false
         }
 
         // Kiểm tra vai trò của người dùng có khớp với vai trò yêu cầu hay không
         for (let role of requiredRoles) {
-            if (user.role.code === role) {
-                return true
-            }
+            for (let userRole of user.roles)
+                if (userRole === role) {
+                    return true
+                }
         }
         return false
     }
