@@ -1,21 +1,19 @@
-import { Controller, UseGuards } from '@nestjs/common'
+import { Body, Controller, Param, Post, Req, UseGuards } from '@nestjs/common'
 import { CartService } from './cart.service'
-import { MessagePattern } from '@nestjs/microservices'
-import { CART_PATTERN } from '@src/utils/enums/cart.enum'
 import { Roles } from '@src/utils/decorators/role.decorator'
 import { role } from '@src/utils/enums/role.enum'
 import { JwtAuthGuard } from '@src/utils/guards/jwt.guard'
 import { RolesGuard } from '@src/utils/guards/roles.guard'
 import * as jwt from 'jsonwebtoken'
 
-@Controller()
+@Controller('cart')
 export class CartController {
     constructor(private readonly cartService: CartService) {}
 
     @UseGuards(JwtAuthGuard, RolesGuard)
     @Roles(role.admin, role.customer)
-    @MessagePattern(CART_PATTERN.cart_create)
-    async createCart(data) {
+    @Post('create')
+    async createCart(@Body() data) {
         const decoded = jwt.decode(data.token)
         data.user = decoded
         return this.cartService.createCart(data)
@@ -23,8 +21,8 @@ export class CartController {
 
     @UseGuards(JwtAuthGuard, RolesGuard)
     @Roles(role.admin, role.customer)
-    @MessagePattern(CART_PATTERN.cart_get_all)
-    async getAllCart({ page = 1, size = 10, token }) {
+    @Post('get-all-cart')
+    async getAllCart(@Body() { page = 1, size = 10, token }) {
         const take = size
         const skip = (page - 1) * size
         const user = jwt.decode(token)
@@ -33,25 +31,28 @@ export class CartController {
 
     @UseGuards(JwtAuthGuard, RolesGuard)
     @Roles(role.admin, role.customer)
-    @MessagePattern(CART_PATTERN.cart_get_one)
-    async getCart(id: string, token) {
+    @Post('get-cart/:id')
+    async getCart(@Param() id: string, @Req() req: any) {
+        const token = req.headers.authorization.split(' ')[1]
         const user = jwt.decode(token)
         return this.cartService.getCart({ id, user })
     }
 
     @UseGuards(JwtAuthGuard, RolesGuard)
     @Roles(role.admin, role.customer)
-    @MessagePattern(CART_PATTERN.cart_update)
-    async updateCart(data) {
-        const decoded = jwt.decode(data.token)
+    @Post('update-cart')
+    async updateCart(@Body() data, @Req() req: any) {
+        const token = req.headers.authorization.split(' ')[1]
+        const decoded = jwt.decode(token)
         data.user = decoded
         return this.cartService.updateCart(data)
     }
 
     @UseGuards(JwtAuthGuard, RolesGuard)
     @Roles(role.admin, role.customer)
-    @MessagePattern(CART_PATTERN.cart_delete)
-    async deleteCart(id: string, token: string) {
+    @Post('delete-cart/:id')
+    async deleteCart(@Param() id: string, @Req() req: any) {
+        const token = req.headers.authorization.split(' ')[1]
         const user = jwt.decode(token)
         return this.cartService.deleteCart({ id, user })
     }
