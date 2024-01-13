@@ -20,7 +20,7 @@ import { EurekaModule } from 'nestjs-eureka'
                 maxRetries: 3,
             },
             service: {
-                name: 'product-service',
+                name: 'order',
                 port: +process.env.PORT,
             },
             clientLogger: {
